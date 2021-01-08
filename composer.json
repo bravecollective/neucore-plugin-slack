@@ -4,7 +4,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
-        "tkhamez/neucore-plugin": "^0.1.0",
-      "ext-pdo": "*"
+        "ext-pdo": "*",
+        "tkhamez/neucore-plugin": "^0.1.0"
     }
 }

@@ -42,7 +42,7 @@ class Service implements ServiceInterface
 
         $pdo = $this->dbConnect();
         if ($pdo === null) {
-            return [];
+            throw new Exception();
         }
 
         // fetch accounts
@@ -69,6 +69,8 @@ class Service implements ServiceInterface
             $status =  ServiceAccountData::STATUS_UNKNOWN;
             if ($row['status'] === 'Active' && $row['slack_id'] !== null) {
                 $status = ServiceAccountData::STATUS_ACTIVE;
+            } elseif ($row['invited_at'] > $this->getInviteWaitTime()) {
+                $status = ServiceAccountData::STATUS_PENDING;
             } elseif ($row['status'] === 'Terminated' && $row['slack_id'] !== null) {
                 $status = ServiceAccountData::STATUS_DEACTIVATED;
             } elseif (
@@ -122,7 +124,7 @@ class Service implements ServiceInterface
             throw new Exception();
         }
         if (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
-            if ($row['invited_at'] > time() - (60 * 60 * 24)) {
+            if ($row['invited_at'] > $this->getInviteWaitTime()) {
                 throw new Exception(self::ERROR_INVITE_WAIT);
             }
             $update = $pdo->prepare(
@@ -170,19 +172,21 @@ class Service implements ServiceInterface
         throw new Exception();
     }
 
+    private function getInviteWaitTime(): int
+    {
+        return time() - (60 * 60 * 48);
+    }
+
     /**
      * @throws PDOException
      */
     private function emailAssignedToSamePlayer(PDO $pdo, string $emailAddress, array $otherCharacterIds): bool
     {
-        # TODO why limit to ACTIVE status?
         $stmt = $pdo->prepare(
             'SELECT character_id FROM invite WHERE email = :email AND account_status = :account_status'
-            #'SELECT character_id FROM invite WHERE email = :email'
         );
         try {
-            #$stmt->execute([':email' => $emailAddress, ':account_status' => self::STATUS_ACTIVE]);
-            $stmt->execute([':email' => $emailAddress]);
+            $stmt->execute([':email' => $emailAddress, ':account_status' => self::STATUS_ACTIVE]);
         } catch (PDOException $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             throw $e;
@@ -195,7 +199,6 @@ class Service implements ServiceInterface
 
         foreach ($rows as $row) {
             if (in_array($row["character_id"], $otherCharacterIds)) {
-                # TODO check all and return false if one does not match?
                 return true;
             }
         }
