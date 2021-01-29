@@ -172,6 +172,11 @@ class Service implements ServiceInterface
         throw new Exception();
     }
 
+    public function getAllAccounts(): array
+    {
+        throw new Exception();
+    }
+
     private function getInviteWaitTime(): int
     {
         return time() - (60 * 60 * 48);
