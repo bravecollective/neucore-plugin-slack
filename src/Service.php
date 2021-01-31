@@ -23,6 +23,11 @@ class Service implements ServiceInterface
      */
     private $logger;
 
+    /**
+     * @var PDO|null
+     */
+    private $pdo;
+
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -235,19 +240,21 @@ class Service implements ServiceInterface
 
     private function dbConnect(): ?PDO
     {
-        try {
-            $pdo = new PDO(
-                $_ENV['NEUCORE_PLUGIN_SLACK_DB_DSN'],
-                $_ENV['NEUCORE_PLUGIN_SLACK_DB_USERNAME'],
-                $_ENV['NEUCORE_PLUGIN_SLACK_DB_PASSWORD']
-            );
-        } catch (PDOException $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            return null;
+        if ($this->pdo === null) {
+            try {
+                $this->pdo = new PDO(
+                    $_ENV['NEUCORE_PLUGIN_SLACK_DB_DSN'],
+                    $_ENV['NEUCORE_PLUGIN_SLACK_DB_USERNAME'],
+                    $_ENV['NEUCORE_PLUGIN_SLACK_DB_PASSWORD']
+                );
+            } catch (PDOException $e) {
+                $this->logger->error($e->getMessage(), ['exception' => $e]);
+                return null;
+            }
+
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
 
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        return $pdo;
+        return $this->pdo;
     }
 }
