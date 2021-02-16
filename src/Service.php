@@ -78,12 +78,6 @@ class Service implements ServiceInterface
                 $status = ServiceAccountData::STATUS_PENDING;
             } elseif ($row['status'] === 'Terminated' && $row['slack_id'] !== null) {
                 $status = ServiceAccountData::STATUS_DEACTIVATED;
-            } elseif (
-                $row['slack_id'] === null &&
-                $row['status'] === null &&
-                $row['invited_at'] > strtotime('2020-01-01')
-            ) {
-                $status = ServiceAccountData::STATUS_PENDING;
             }
             $result[] = new ServiceAccountData((int)$row['character_id'], null, null, $row['email'], $status);
         }
