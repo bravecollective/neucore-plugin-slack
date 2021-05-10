@@ -8,7 +8,7 @@
 ### Slack App
 
 - Create a Slack app at https://api.slack.com/apps
-- Add permission: chat:write:bot
+- Add Bot Token Scope: `chat:write`
 - Install app to workspace
 - Add the bot to the "NEUCORE_PLUGIN_SLACK_CHANNEL" from the config
 
@@ -22,7 +22,6 @@ The plugin needs the following environment variables on the Neucore server:
 - NEUCORE_PLUGIN_SLACK_DB_PASSWORD=password
 - NEUCORE_PLUGIN_SLACK_CHANNEL="admin"
 - NEUCORE_PLUGIN_SLACK_TOKEN="the-slack-token"
-- NEUCORE_PLUGIN_SLACK_BOTNAME="slack-bot-name"
 
 Install for development:
 ```shell

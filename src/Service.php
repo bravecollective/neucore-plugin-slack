@@ -214,20 +214,18 @@ class Service implements ServiceInterface
     {
         $options = array(
             'http' => array(
-                'method' => 'GET',
+                'method' => 'POST',
                 'header' => array(
-                    'Host: slack.com',
                     'User-Agent: BRAVE Slack Signup (https://github.com/bravecollective/slack-signup)',
+                    'Authorization: Bearer ' . $_ENV['NEUCORE_PLUGIN_SLACK_TOKEN'],
                 ),
             ),
         );
 
+        // https://api.slack.com/methods/chat.postMessage
         $url = 'https://slack.com/api/chat.postMessage?' .
-            'token=' . urlencode($_ENV['NEUCORE_PLUGIN_SLACK_TOKEN']) .
             '&channel=' . urlencode($_ENV['NEUCORE_PLUGIN_SLACK_CHANNEL']) .
-            '&text=' . urlencode($text) .
-            '&as_user=false' .
-            '&username=' . urlencode($_ENV['NEUCORE_PLUGIN_SLACK_BOTNAME']);
+            '&text=' . urlencode($text);
 
         file_get_contents($url, false, stream_context_create($options));
     }
