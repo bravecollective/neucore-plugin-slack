@@ -45,17 +45,14 @@ class Service implements ServiceInterface
             return [];
         }
 
-        $pdo = $this->dbConnect();
-        if ($pdo === null) {
-            throw new Exception();
-        }
+        $this->dbConnect();
 
         // fetch accounts
         $characterIds = array_map(function (CoreCharacter $character) {
             return $character->id;
         }, $characters);
         $placeholders = implode(',', array_fill(0, count($characterIds), '?'));
-        $stmt = $pdo->prepare(
+        $stmt = $this->pdo->prepare(
             "SELECT character_id, email, invited_at, slack_id, account_status AS status
             FROM invite 
             WHERE character_id IN ($placeholders)"
@@ -88,7 +85,6 @@ class Service implements ServiceInterface
     /**
      * @param CoreGroup[] $groups
      * @param int[] $allCharacterIds
-     * @return ServiceAccountData
      * @throws Exception
      */
     public function register(
@@ -101,13 +97,10 @@ class Service implements ServiceInterface
             throw new Exception(self::ERROR_MISSING_EMAIL);
         }
 
-        $pdo = $this->dbConnect();
-        if ($pdo === null) {
-            throw new Exception();
-        }
+        $this->dbConnect();
 
         try {
-            $emailOk = $this->emailAssignedToSamePlayer($pdo, $emailAddress, $allCharacterIds);
+            $emailOk = $this->emailAssignedToSamePlayer($emailAddress, $allCharacterIds);
         } catch(PDOException $e) {
             throw new Exception();
         }
@@ -116,7 +109,7 @@ class Service implements ServiceInterface
         }
 
         // add or update account
-        $stmt = $pdo->prepare('SELECT email, email_history, invited_at FROM invite WHERE character_id = :id');
+        $stmt = $this->pdo->prepare('SELECT email, email_history, invited_at FROM invite WHERE character_id = :id');
         try {
             $stmt->execute([':id' => $character->id]);
         } catch(PDOException $e) {
@@ -126,7 +119,7 @@ class Service implements ServiceInterface
             if ($row['invited_at'] > $this->getInviteWaitTime()) {
                 throw new Exception(self::ERROR_INVITE_WAIT);
             }
-            $update = $pdo->prepare(
+            $update = $this->pdo->prepare(
                 'UPDATE invite 
                 SET email = :email, invited_at = :invited_at, email_history = :email_history 
                 WHERE character_id = :character_id'
@@ -141,7 +134,7 @@ class Service implements ServiceInterface
                 throw new Exception();
             }
         } else {
-            $insert = $pdo->prepare(
+            $insert = $this->pdo->prepare(
                 'INSERT INTO invite (character_id, character_name, email, invited_at) 
                 VALUES (:character_id, :character_name, :email, :invited_at)'
             );
@@ -156,7 +149,7 @@ class Service implements ServiceInterface
             }
         }
 
-        $this->sendSlack("{$character->name} <$emailAddress>");
+        $this->sendSlack("$character->name <$emailAddress>");
 
         return new ServiceAccountData($character->id, null, null, $emailAddress);
     }
@@ -184,9 +177,9 @@ class Service implements ServiceInterface
     /**
      * @throws PDOException
      */
-    private function emailAssignedToSamePlayer(PDO $pdo, string $emailAddress, array $otherCharacterIds): bool
+    private function emailAssignedToSamePlayer(string $emailAddress, array $otherCharacterIds): bool
     {
-        $stmt = $pdo->prepare(
+        $stmt = $this->pdo->prepare(
             'SELECT character_id FROM invite WHERE email = :email AND account_status = :account_status'
         );
         try {
@@ -230,7 +223,10 @@ class Service implements ServiceInterface
         file_get_contents($url, false, stream_context_create($options));
     }
 
-    private function dbConnect(): ?PDO
+    /**
+     * @throws Exception
+     */
+    private function dbConnect(): void
     {
         if ($this->pdo === null) {
             try {
@@ -240,13 +236,10 @@ class Service implements ServiceInterface
                     $_ENV['NEUCORE_PLUGIN_SLACK_DB_PASSWORD']
                 );
             } catch (PDOException $e) {
-                $this->logger->error($e->getMessage(), ['exception' => $e]);
-                return null;
+                $this->logger->error($e->getMessage() . ' at ' . __FILE__ . ':' . __LINE__);
+                throw new Exception();
             }
-
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
-
-        return $this->pdo;
     }
 }
