@@ -28,7 +28,7 @@ class Service implements ServiceInterface
      */
     private $pdo;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $configurationData)
     {
         $this->logger = $logger;
     }
