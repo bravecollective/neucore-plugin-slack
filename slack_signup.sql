@@ -1,4 +1,3 @@
-CREATE DATABASE `slack_signup` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 CREATE TABLE `invite`
 (
@@ -9,6 +8,7 @@ CREATE TABLE `invite`
     `invited_at`     int(11) NOT NULL,
     `slack_id`       text DEFAULT NULL,
     `account_status` text DEFAULT NULL,
+    `slack_name`     varchar(255) DEFAULT NULL,
     PRIMARY KEY (`character_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
