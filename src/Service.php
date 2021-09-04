@@ -53,7 +53,9 @@ class Service implements ServiceInterface
         }, $characters);
         $placeholders = implode(',', array_fill(0, count($characterIds), '?'));
         $stmt = $this->pdo->prepare(
-            "SELECT character_id, email, invited_at, slack_id, account_status AS status
+            // Use * instead of "character_id, email, invited_at, slack_id, account_status, slack_name"
+            // to keep it compatible with the old database schema for now ("slack_name" is new).
+            "SELECT *
             FROM invite 
             WHERE character_id IN ($placeholders)"
         );
@@ -69,14 +71,21 @@ class Service implements ServiceInterface
         $result = [];
         foreach ($rows as $row) {
             $status =  ServiceAccountData::STATUS_UNKNOWN;
-            if ($row['status'] === 'Active' && $row['slack_id'] !== null) {
+            if ($row['account_status'] === 'Active' && $row['slack_id'] !== null) {
                 $status = ServiceAccountData::STATUS_ACTIVE;
             } elseif ($row['invited_at'] > $this->getInviteWaitTime()) {
                 $status = ServiceAccountData::STATUS_PENDING;
-            } elseif ($row['status'] === 'Terminated' && $row['slack_id'] !== null) {
+            } elseif ($row['account_status'] === 'Terminated' && $row['slack_id'] !== null) {
                 $status = ServiceAccountData::STATUS_DEACTIVATED;
             }
-            $result[] = new ServiceAccountData((int)$row['character_id'], null, null, $row['email'], $status);
+            $result[] = new ServiceAccountData(
+                (int) $row['character_id'],
+                null,
+                null,
+                $row['email'],
+                $status,
+                $row['slack_name'] ?? null
+            );
         }
 
         return $result;
