@@ -8,7 +8,7 @@ CREATE TABLE `invite`
     `invited_at`     int(11) NOT NULL,
     `slack_id`       text DEFAULT NULL,
     `account_status` text DEFAULT NULL,
-    `slack_name`     varchar(255) DEFAULT NULL,
+    `slack_name`     varchar(1024) DEFAULT NULL,
     PRIMARY KEY (`character_id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
+  DEFAULT CHARSET = utf8mb4;
