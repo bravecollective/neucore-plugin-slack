@@ -6,9 +6,12 @@ use Neucore\Plugin\CoreCharacter;
 use Neucore\Plugin\CoreGroup;
 use Neucore\Plugin\Exception;
 use Neucore\Plugin\ServiceAccountData;
+use Neucore\Plugin\ServiceConfiguration;
 use Neucore\Plugin\ServiceInterface;
 use PDO;
 use PDOException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 /** @noinspection PhpUnused */
@@ -28,18 +31,18 @@ class Service implements ServiceInterface
      */
     private $pdo;
 
-    public function __construct(LoggerInterface $logger, string $configurationData)
+    /** @noinspection PhpUnusedParameterInspection */
+    public function __construct(LoggerInterface $logger, ServiceConfiguration $serviceConfiguration)
     {
         $this->logger = $logger;
     }
 
     /**
      * @param CoreCharacter[] $characters
-     * @param CoreGroup[] $groups
      * @return ServiceAccountData[]
      * @throws Exception
      */
-    public function getAccounts(array $characters, array $groups): array
+    public function getAccounts(array $characters): array
     {
         if (count($characters) === 0) {
             return [];
@@ -163,7 +166,12 @@ class Service implements ServiceInterface
         return new ServiceAccountData($character->id, null, null, $emailAddress);
     }
 
-    public function updateAccount(CoreCharacter $character, array $groups): void
+    public function updateAccount(CoreCharacter $character, array $groups, ?CoreCharacter $mainCharacter): void
+    {
+        throw new Exception();
+    }
+
+    public function updatePlayerAccount(CoreCharacter $mainCharacter, array $groups): void
     {
         throw new Exception();
     }
@@ -174,6 +182,11 @@ class Service implements ServiceInterface
     }
 
     public function getAllAccounts(): array
+    {
+        throw new Exception();
+    }
+
+    public function getAllPlayerAccounts(): array
     {
         throw new Exception();
     }
@@ -250,5 +263,17 @@ class Service implements ServiceInterface
             }
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function request(
+        CoreCharacter $coreCharacter,
+        string $name,
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ): ResponseInterface {
+        throw new Exception();
     }
 }
