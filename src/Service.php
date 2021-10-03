@@ -58,9 +58,7 @@ class Service implements ServiceInterface
         $stmt = $this->pdo->prepare(
             // Use * instead of "character_id, email, invited_at, slack_id, account_status, slack_name"
             // to keep it compatible with the old database schema for now ("slack_name" is new).
-            "SELECT *
-            FROM invite 
-            WHERE character_id IN ($placeholders)"
+            "SELECT * FROM invite WHERE character_id IN ($placeholders)"
         );
         try {
             $stmt->execute($characterIds);
@@ -133,7 +131,7 @@ class Service implements ServiceInterface
             }
             $update = $this->pdo->prepare(
                 'UPDATE invite 
-                SET email = :email, invited_at = :invited_at, email_history = :email_history 
+                SET email = :email, invited_at = :invited_at, email_history = :email_history, slack_id = null
                 WHERE character_id = :character_id'
             );
             $update->bindValue(':email', $emailAddress);
