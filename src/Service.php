@@ -17,8 +17,6 @@ use Psr\Log\LoggerInterface;
 /** @noinspection PhpUnused */
 class Service implements ServiceInterface
 {
-    private const STATUS_ACTIVE = 'Active';
-
     #private const STATUS_TERMINATED = 'Terminated';
 
     #private const STATUS_PENDING_REMOVAL = 'Pending Removal';
@@ -33,7 +31,6 @@ class Service implements ServiceInterface
      */
     private $pdo;
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function __construct(LoggerInterface $logger, ServiceConfiguration $serviceConfiguration)
     {
         $this->logger = $logger;
@@ -205,7 +202,7 @@ class Service implements ServiceInterface
             'SELECT character_id FROM invite WHERE email = :email AND account_status = :account_status'
         );
         try {
-            $stmt->execute([':email' => $emailAddress, ':account_status' => self::STATUS_ACTIVE]);
+            $stmt->execute([':email' => $emailAddress, ':account_status' => ServiceAccountData::STATUS_ACTIVE]);
         } catch (PDOException $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             throw $e;
