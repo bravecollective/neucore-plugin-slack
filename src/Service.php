@@ -173,6 +173,11 @@ class Service implements ServiceInterface
         throw new Exception();
     }
 
+    public function moveServiceAccount(int $toPlayerId, int $fromPlayerId): bool
+    {
+        return true;
+    }
+
     public function resetPassword(int $characterId): string
     {
         throw new Exception();
