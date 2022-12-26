@@ -21,15 +21,9 @@ class Service implements ServiceInterface
 
     #private const STATUS_PENDING_REMOVAL = 'Pending Removal';
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var PDO|null
-     */
-    private $pdo;
+    private ?PDO $pdo = null;
 
     public function __construct(LoggerInterface $logger, ServiceConfiguration $serviceConfiguration)
     {
@@ -110,7 +104,7 @@ class Service implements ServiceInterface
 
         try {
             $emailOk = $this->emailAssignedToSamePlayer($emailAddress, $allCharacterIds);
-        } catch(PDOException $e) {
+        } catch(PDOException) {
             throw new Exception();
         }
         if (!$emailOk) {
@@ -121,7 +115,7 @@ class Service implements ServiceInterface
         $stmt = $this->pdo->prepare('SELECT email, email_history, invited_at FROM invite WHERE character_id = :id');
         try {
             $stmt->execute([':id' => $character->id]);
-        } catch(PDOException $e) {
+        } catch(PDOException) {
             throw new Exception();
         }
         if (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
@@ -139,7 +133,7 @@ class Service implements ServiceInterface
             $update->bindValue(':character_id', $character->id);
             try {
                 $update->execute();
-            } catch(PDOException $e) {
+            } catch(PDOException) {
                 throw new Exception();
             }
         } else {
@@ -153,7 +147,7 @@ class Service implements ServiceInterface
             $insert->bindValue(':invited_at', time());
             try {
                 $insert->execute();
-            } catch(PDOException $e) {
+            } catch(PDOException) {
                 throw new Exception();
             }
         }
@@ -191,6 +185,23 @@ class Service implements ServiceInterface
     public function getAllPlayerAccounts(): array
     {
         throw new Exception();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function request(
+        CoreCharacter $coreCharacter,
+        string $name,
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $groups
+    ): ResponseInterface {
+        throw new Exception();
+    }
+
+    public function onConfigurationChange(): void
+    {
     }
 
     private function getInviteWaitTime(): int
@@ -265,18 +276,5 @@ class Service implements ServiceInterface
             }
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function request(
-        CoreCharacter $coreCharacter,
-        string $name,
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        array $groups
-    ): ResponseInterface {
-        throw new Exception();
     }
 }
