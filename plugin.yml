@@ -42,16 +42,16 @@ actions:
 # List of link buttons. Placeholders for URL: {plugin_id}, {username}, {password}, {email}
 URLs:
   -
-    url: https://your-name.slack.com/?email={email}
+    url: https://your-name.slack.com/sign_in_with_password?email={email}
     title: Slack login
     target: _blank
 
 # Text above the list of accounts (supports multiline text).
 textTop: >
-  If for whatever reason you need to remove a character that is associated a Slack account from your Core 
-  account (i.e. character transfer or deletion), you MUST request an invite on another character from your
-  Core account (change your main), using the same e-mail, BEFORE the removal occurs. Failure to do this will 
-  lead to your Slack account being locked.
+  If for whatever reason you need to remove a character that is associated with a Slack account from your Core 
+  account (i.e. character transfer or deletion), you MUST request an invite on another character from your Core 
+  account (change your main), using the same e-mail, BEFORE the removal occurs. Failure to do this will lead to 
+  your Slack account being locked.
 
 # Text below account table (supports multiline text).
 textAccount:
@@ -62,11 +62,16 @@ textRegister: |
   The e-mail address you use to sign-up will be visible to Slack admins, don't doxx yourself by accident.
 
 # Text below an account with status "pending" (supports multiline text).
-textPending: |
-  Wait for your invitation e-mail to arrive and follow the steps to sign-up.
-  Set your username and realname as close to your Eve character name as possible.
+textPending:
+  'Wait for your invitation e-mail to arrive and follow the steps to sign-up.
   
-  You have to wait at least 48 hours to request another invite.
+  Set your Full name and Display name as close to your main Eve character name as possible.
+  
+  
+  Remember that this is a manual process at this point, so please be patient.
+  
+  You will have to wait at least 24 hours to request another invitation - in case you misspelled your mail 
+  address, for example.'
 
 # Additional configuration for the plugin (supports multiline text).
 configurationData:
