@@ -1,0 +1,72 @@
+
+###
+### Required configuration
+###
+
+# A name for the plugin
+name: Slack registration
+
+# Type of the plugin. The only possible value for now is "service".
+type: service
+
+# Full class name of class implementing Neucore\Plugin\ServiceInterface.
+phpClass: Brave\Neucore\Plugin\Slack\Service
+
+# PHP namespace that should be loaded by the PSR-4 autoloader.
+psr4Prefix: Brave\Neucore\Plugin\Slack
+
+# Relative (to this file) path to the directory containing the classes of the above namespace.
+psr4Path: src
+
+# Defines if this service allows only one account per player instead of one per character.
+oneAccount: false
+
+# List of available account properties, possible values: username, password, email, status, name
+properties:
+  - email
+  - status
+  - name
+
+# If this is not enabled and the account contains a password (see properties), the user will be able to see
+# it only once after it is reset (see actions).
+showPassword: false
+
+# List of actions: update-account, reset-password
+actions:
+
+
+###
+### Optional configuration
+###
+
+# List of link buttons. Placeholders for URL: {plugin_id}, {username}, {password}, {email}
+URLs:
+  -
+    url: https://your-name.slack.com/?email={email}
+    title: Slack login
+    target: _blank
+
+# Text above the list of accounts (supports multiline text).
+textTop: >
+  If for whatever reason you need to remove a character that is associated a Slack account from your Core 
+  account (i.e. character transfer or deletion), you MUST request an invite on another character from your
+  Core account (change your main), using the same e-mail, BEFORE the removal occurs. Failure to do this will 
+  lead to your Slack account being locked.
+
+# Text below account table (supports multiline text).
+textAccount:
+
+# Text below the registration form/button (supports multiline text).
+textRegister: |
+  Please be aware that this is a MANUAL process - it can take several days for your request to be processed.
+  The e-mail address you use to sign-up will be visible to Slack admins, don't doxx yourself by accident.
+
+# Text below an account with status "pending" (supports multiline text).
+textPending: |
+  Wait for your invitation e-mail to arrive and follow the steps to sign-up.
+  Set your username and realname as close to your Eve character name as possible.
+  
+  You have to wait at least 48 hours to request another invite.
+
+# Additional configuration for the plugin (supports multiline text).
+configurationData:
