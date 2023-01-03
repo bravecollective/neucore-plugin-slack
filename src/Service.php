@@ -49,9 +49,9 @@ class Service implements ServiceInterface
         }, $characters);
         $placeholders = implode(',', array_fill(0, count($characterIds), '?'));
         $stmt = $this->pdo->prepare(
-            // Use * instead of "character_id, email, invited_at, slack_id, account_status, slack_name"
-            // to keep it compatible with the old database schema for now ("slack_name" is new).
-            "SELECT * FROM invite WHERE character_id IN ($placeholders)"
+            "SELECT character_id, email, invited_at, slack_id, account_status, slack_name 
+            FROM invite 
+            WHERE character_id IN ($placeholders)"
         );
         try {
             $stmt->execute($characterIds);
