@@ -2,11 +2,13 @@
 
 namespace Brave\Neucore\Plugin\Slack;
 
-use Neucore\Plugin\CoreCharacter;
-use Neucore\Plugin\CoreGroup;
+use Neucore\Plugin\Core\FactoryInterface;
+use Neucore\Plugin\Data\CoreAccount;
+use Neucore\Plugin\Data\CoreCharacter;
+use Neucore\Plugin\Data\CoreGroup;
+use Neucore\Plugin\Data\PluginConfiguration;
+use Neucore\Plugin\Data\ServiceAccountData;
 use Neucore\Plugin\Exception;
-use Neucore\Plugin\ServiceAccountData;
-use Neucore\Plugin\ServiceConfiguration;
 use Neucore\Plugin\ServiceInterface;
 use PDO;
 use PDOException;
@@ -25,9 +27,28 @@ class Service implements ServiceInterface
 
     private ?PDO $pdo = null;
 
-    public function __construct(LoggerInterface $logger, ServiceConfiguration $serviceConfiguration)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        PluginConfiguration $pluginConfiguration,
+        FactoryInterface $factory,
+    ) {
         $this->logger = $logger;
+    }
+
+    public function onConfigurationChange(): void
+    {
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function request(
+        string $name,
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        ?CoreAccount $coreAccount,
+    ): ResponseInterface {
+        throw new Exception();
     }
 
     /**
@@ -187,21 +208,21 @@ class Service implements ServiceInterface
         throw new Exception();
     }
 
-    /**
-     * @throws Exception
-     */
-    public function request(
-        CoreCharacter $coreCharacter,
-        string $name,
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        array $groups
-    ): ResponseInterface {
-        throw new Exception();
-    }
-
-    public function onConfigurationChange(): void
+    public function search(string $query): array
     {
+        $this->dbConnect();
+
+        $stmt = $this->pdo->prepare( 'SELECT character_id FROM invite WHERE slack_name LIKE ?');
+        try {
+            $stmt->execute(["%$query%"]);
+        } catch (PDOException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+            throw new Exception();
+        }
+
+        return array_map(function (array $row) {
+            return new ServiceAccountData((int)$row['character_id']);
+        }, $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     private function getInviteWaitTime(): int
