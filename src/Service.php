@@ -94,12 +94,11 @@ class Service implements ServiceInterface
                 $status = ServiceAccountData::STATUS_DEACTIVATED;
             }
             $result[] = new ServiceAccountData(
-                (int) $row['character_id'],
-                null,
-                null,
-                $row['email'],
-                $status,
-                $row['slack_name'] ?? null
+                characterId: (int)$row['character_id'],
+                username: 'ID ' . $row['slack_id'],
+                email: $row['email'],
+                status: $status,
+                name: $row['slack_name'] ?? null
             );
         }
 
@@ -212,9 +211,9 @@ class Service implements ServiceInterface
     {
         $this->dbConnect();
 
-        $stmt = $this->pdo->prepare( 'SELECT character_id FROM invite WHERE slack_name LIKE ?');
+        $stmt = $this->pdo->prepare( 'SELECT character_id FROM invite WHERE slack_name LIKE ? OR slack_id LIKE ?');
         try {
-            $stmt->execute(["%$query%"]);
+            $stmt->execute(["%$query%", "%$query%"]);
         } catch (PDOException $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             throw new Exception();
