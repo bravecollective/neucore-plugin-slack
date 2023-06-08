@@ -1,5 +1,10 @@
 # neucore-plugin-slack
 
+A [Neucore](https://github.com/bravecollective/neucore) service plugin to request Slack invitations.
+
+Account updates and removal notifications are done with 
+[Neucore-Slack-Link](https://github.com/bravecollective/Neucore-Slack-Link).
+
 ## Requirements
 
 - A [Neucore](https://github.com/bravecollective/neucore) installation.
