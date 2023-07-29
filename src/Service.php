@@ -258,7 +258,7 @@ class Service implements ServiceInterface
         return false;
     }
 
-    private function sendSlack($text)
+    private function sendSlack($text): void
     {
         $options = array(
             'http' => array(
