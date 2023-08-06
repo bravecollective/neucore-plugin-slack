@@ -211,6 +211,7 @@ class Service implements ServiceInterface
     {
         $this->dbConnect();
 
+        $query = str_replace(['\\', '_', '%'], ['\\\\', '\_', '\%'], $query);
         $stmt = $this->pdo->prepare( 'SELECT character_id FROM invite WHERE slack_name LIKE ? OR slack_id LIKE ?');
         try {
             $stmt->execute(["%$query%", "%$query%"]);
