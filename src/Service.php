@@ -227,7 +227,7 @@ class Service implements ServiceInterface
 
     private function getInviteWaitTime(): int
     {
-        return time() - (60 * 60 * 24);
+        return time() - (60 * 60 * 12);
     }
 
     /**
