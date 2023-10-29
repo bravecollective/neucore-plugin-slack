@@ -19,9 +19,11 @@ use Psr\Log\LoggerInterface;
 /** @noinspection PhpUnused */
 class Service implements ServiceInterface
 {
-    #private const STATUS_TERMINATED = 'Terminated';
+    private const STATUS_ACTIVE = 'Active';
 
-    #private const STATUS_PENDING_REMOVAL = 'Pending Removal';
+    private const STATUS_TERMINATED = 'Terminated';
+
+    private const STATUS_PENDING_REMOVAL = 'Pending Removal';
 
     private LoggerInterface $logger;
 
@@ -86,16 +88,19 @@ class Service implements ServiceInterface
         $result = [];
         foreach ($rows as $row) {
             $status =  ServiceAccountData::STATUS_UNKNOWN;
-            if ($row['account_status'] === 'Active' && $row['slack_id'] !== null) {
+            if (
+                in_array($row['account_status'], [self::STATUS_ACTIVE, self::STATUS_PENDING_REMOVAL]) &&
+                $row['slack_id'] !== null
+            ) {
                 $status = ServiceAccountData::STATUS_ACTIVE;
-            } elseif ($row['invited_at'] > $this->getInviteWaitTime()) {
+            } elseif ($row['invited_at'] > $this->getInviteWaitTime(3)) {
                 $status = ServiceAccountData::STATUS_PENDING;
-            } elseif ($row['account_status'] === 'Terminated' && $row['slack_id'] !== null) {
+            } elseif ($row['account_status'] === self::STATUS_TERMINATED && $row['slack_id'] !== null) {
                 $status = ServiceAccountData::STATUS_DEACTIVATED;
             }
             $result[] = new ServiceAccountData(
                 characterId: (int)$row['character_id'],
-                username: 'ID ' . $row['slack_id'],
+                username: "ID {$row['slack_id']}",
                 email: $row['email'],
                 status: $status,
                 name: $row['slack_name'] ?? null
@@ -225,9 +230,9 @@ class Service implements ServiceInterface
         }, $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    private function getInviteWaitTime(): int
+    private function getInviteWaitTime(int $multiplyWaitTime = 1): int
     {
-        return time() - (60 * 60 * 12);
+        return time() - (60 * 60 * 12 * $multiplyWaitTime);
     }
 
     /**
